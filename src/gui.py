@@ -51,19 +51,26 @@ class AugmentationApp:
         self.browse_button = ttk.Button(self.root, text="Browse", command=self.browse_input)
         self.browse_button.grid(row=1, column=3, padx=10, pady=10, sticky="W")
 
+        # Target sub-directory selection
+        self.sub_dir_label = ttk.Label(self.root, text="Select Target Sub-directory:")
+        self.sub_dir_label.grid(row=2, column=0, padx=10, pady=10, sticky="W")
+
+        self.sub_dir_frame = tk.Frame(self.root)
+        self.sub_dir_frame.grid(row=2, column=1, columnspan=3, padx=10, pady=10, sticky="W")
+
         # Augmentation mode selection
         self.mode_label = ttk.Label(self.root, text="Select Augmentation Mode:")
-        self.mode_label.grid(row=2, column=0, padx=10, pady=10, sticky="W")
+        self.mode_label.grid(row=3, column=0, padx=10, pady=10, sticky="W")
 
         self.mode_var = tk.StringVar(value="automatic")
         self.manual_radio = ttk.Radiobutton(self.root, text="Manual", variable=self.mode_var, value="manual", command=self.update_entries)
-        self.manual_radio.grid(row=2, column=1, padx=10, pady=5, sticky="W")
+        self.manual_radio.grid(row=3, column=1, padx=10, pady=5, sticky="W")
         self.automatic_radio = ttk.Radiobutton(self.root, text="Automatic", variable=self.mode_var, value="automatic", command=self.update_entries)
-        self.automatic_radio.grid(row=2, column=2, padx=10, pady=5, sticky="W")
+        self.automatic_radio.grid(row=3, column=2, padx=10, pady=5, sticky="W")
 
         # Augmentation options
         self.augmentations_label = ttk.Label(self.root, text="Select Augmentations:")
-        self.augmentations_label.grid(row=3, column=0, padx=10, pady=10, sticky="W")
+        self.augmentations_label.grid(row=4, column=0, padx=10, pady=10, sticky="W")
 
         self.brightness_var = tk.BooleanVar()
         self.contrast_var = tk.BooleanVar()
@@ -72,48 +79,61 @@ class AugmentationApp:
         self.distortion_var = tk.BooleanVar()
 
         self.brightness_check = ttk.Checkbutton(self.root, text="Brightness (0.7-1.1)", variable=self.brightness_var, command=self.update_entries)
-        self.brightness_check.grid(row=4, column=0, padx=10, pady=5, sticky="W")
+        self.brightness_check.grid(row=5, column=0, padx=10, pady=5, sticky="W")
         self.brightness_entry = ttk.Entry(self.root, width=10)
 
         self.flip_check = ttk.Checkbutton(self.root, text="Flip (0 or 1)", variable=self.flip_var, command=self.update_entries)
-        self.flip_check.grid(row=5, column=0, padx=10, pady=5, sticky="W")
+        self.flip_check.grid(row=6, column=0, padx=10, pady=5, sticky="W")
         self.flip_entry = ttk.Entry(self.root, width=10)
 
         self.distortion_check = ttk.Checkbutton(self.root, text="Distortion (Minimal)", variable=self.distortion_var, command=self.update_entries)
-        self.distortion_check.grid(row=6, column=0, padx=10, pady=5, sticky="W")
+        self.distortion_check.grid(row=7, column=0, padx=10, pady=5, sticky="W")
         self.distortion_entry = ttk.Entry(self.root, width=10)
 
         self.contrast_check = ttk.Checkbutton(self.root, text="Contrast (0.8-1.1)", variable=self.contrast_var, command=self.update_entries)
-        self.contrast_check.grid(row=4, column=2, padx=10, pady=5, sticky="W")
+        self.contrast_check.grid(row=5, column=2, padx=10, pady=5, sticky="W")
         self.contrast_entry = ttk.Entry(self.root, width=10)
 
         self.rotate_check = ttk.Checkbutton(self.root, text="Rotate (-30 to 30)", variable=self.rotate_var, command=self.update_entries)
-        self.rotate_check.grid(row=5, column=2, padx=10, pady=5, sticky="W")
+        self.rotate_check.grid(row=6, column=2, padx=10, pady=5, sticky="W")
         self.rotate_entry = ttk.Entry(self.root, width=10)
 
         # Start button
         self.start_button = ttk.Button(self.root, text="Start Augmentation", command=self.start_augmentation)
-        self.start_button.grid(row=7, column=0, columnspan=4, pady=20)
+        self.start_button.grid(row=8, column=0, columnspan=4, pady=20)
 
         # Log text area
         self.log_text = ScrolledText(self.root, width=80, height=20, state=tk.DISABLED)
-        self.log_text.grid(row=8, column=0, columnspan=4, padx=10, pady=10, sticky="NSEW")
+        self.log_text.grid(row=9, column=0, columnspan=4, padx=10, pady=10, sticky="NSEW")
 
     def browse_input(self):
         input_directory = filedialog.askdirectory()
         if input_directory:
             self.input_entry.delete(0, tk.END)
             self.input_entry.insert(0, input_directory)
+            self.update_sub_dirs(input_directory)
+
+    def update_sub_dirs(self, path):
+        for widget in self.sub_dir_frame.winfo_children():
+            widget.destroy()
+
+        sub_dirs = [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d))]
+        self.sub_dir_vars = {}
+        for sub_dir in sub_dirs:
+            var = tk.BooleanVar()
+            chk = ttk.Checkbutton(self.sub_dir_frame, text=sub_dir, variable=var)
+            chk.pack(anchor='w')
+            self.sub_dir_vars[sub_dir] = var
 
     def update_entries(self):
         mode = self.mode_var.get()
 
         if mode == 'manual':
-            self.brightness_entry.grid(row=4, column=1, padx=10, pady=5, sticky="W")
-            self.flip_entry.grid(row=5, column=1, padx=10, pady=5, sticky="W")
-            self.distortion_entry.grid(row=6, column=1, padx=10, pady=5, sticky="W")
-            self.contrast_entry.grid(row=4, column=3, padx=10, pady=5, sticky="W")
-            self.rotate_entry.grid(row=5, column=3, padx=10, pady=5, sticky="W")
+            self.brightness_entry.grid(row=5, column=1, padx=10, pady=5, sticky="W")
+            self.flip_entry.grid(row=6, column=1, padx=10, pady=5, sticky="W")
+            self.distortion_entry.grid(row=7, column=1, padx=10, pady=5, sticky="W")
+            self.contrast_entry.grid(row=5, column=3, padx=10, pady=5, sticky="W")
+            self.rotate_entry.grid(row=6, column=3, padx=10, pady=5, sticky="W")
         else:
             self.brightness_entry.grid_forget()
             self.flip_entry.grid_forget()
@@ -125,6 +145,11 @@ class AugmentationApp:
         input_directory = self.input_entry.get()
         if not input_directory:
             messagebox.showerror("Error", "Please select an input directory.")
+            return
+
+        selected_sub_dirs = [sub_dir for sub_dir, var in self.sub_dir_vars.items() if var.get()]
+        if not selected_sub_dirs:
+            messagebox.showerror("Error", "Please select at least one sub-directory.")
             return
 
         mode = self.mode_var.get()
@@ -166,10 +191,10 @@ class AugmentationApp:
 
         script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'src', 'scripts', 'augment.py')
         
-        command = ['python', script_path, mode, *augmentations]
-        
-        # Start the augmentation in a separate thread to avoid blocking the GUI
-        threading.Thread(target=self.run_augmentation, args=(command,)).start()
+        for sub_dir in selected_sub_dirs:
+            command = ['python', script_path, mode, input_directory, sub_dir, *augmentations]
+            # Start the augmentation in a separate thread to avoid blocking the GUI
+            threading.Thread(target=self.run_augmentation, args=(command,)).start()
 
     def run_augmentation(self, command):
         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
