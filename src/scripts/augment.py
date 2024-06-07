@@ -38,9 +38,9 @@ def random_rotate(image):
 def add_curved_distortion(image):
     height, width = image.shape[:2]
     # Create a slight barrel distortion
-    K = np.array([[width, 0, width / 2], [0, width, height / 2], [0, 0, 1]])
-    D = np.array([0.0005, 0.0005, 0, 0])  # Small distortion coefficients for minimal effect
-    map1, map2 = cv2.initUndistortRectifyMap(K, D, None, K, (width, height), 5)
+    K = np.array([[width, 0, width / 2], [0, width, height / 2], [0, 0, 1]], dtype=np.float32)
+    D = np.array([0.0005, 0.0005, 0, 0], dtype=np.float32)  # Small distortion coefficients for minimal effect
+    map1, map2 = cv2.initUndistortRectifyMap(K, D, np.eye(3, dtype=np.float32), K, (width, height), cv2.CV_32FC1)
     distorted = cv2.remap(image, map1, map2, cv2.INTER_LINEAR)
     return distorted
 
@@ -109,6 +109,9 @@ def augment_images(base_path, output_path, sub_dir, augmentations_to_apply, mode
     os.makedirs(output_sub_dir_path, exist_ok=True)
 
     valid_extensions = ('.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif')
+
+    print(f"Processing directory: {sub_dir_path}")
+    print(f"Saving to directory: {output_sub_dir_path}")
     
     for file_name in os.listdir(sub_dir_path):
         if file_name.lower().endswith(valid_extensions):
@@ -124,6 +127,8 @@ def augment_images(base_path, output_path, sub_dir, augmentations_to_apply, mode
                 print(f"Saved: {output_file_path}")
             else:
                 print(f"Error reading image {file_path}")
+        else:
+            print(f"Skipping file {file_name} as it does not have a valid image extension")
 
 if __name__ == "__main__":
     if '--help' in sys.argv:
