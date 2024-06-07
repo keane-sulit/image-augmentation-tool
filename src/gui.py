@@ -31,7 +31,7 @@ class AugmentationApp:
         self.root.columnconfigure(1, weight=3)
         self.root.columnconfigure(2, weight=1)
         self.root.columnconfigure(3, weight=1)
-        self.root.rowconfigure(7, weight=1)
+        self.root.rowconfigure(8, weight=1)
 
         # Title label
         self.title_label = ttk.Label(self.root, text="Image Augmentation Tool", font=("Helvetica", 16, "bold"))
@@ -71,30 +71,25 @@ class AugmentationApp:
         self.rotate_var = tk.BooleanVar()
         self.distortion_var = tk.BooleanVar()
 
-        self.brightness_check = ttk.Checkbutton(self.root, text="Brightness", variable=self.brightness_var, command=self.update_entries)
+        self.brightness_check = ttk.Checkbutton(self.root, text="Brightness (0.7-1.1)", variable=self.brightness_var, command=self.update_entries)
         self.brightness_check.grid(row=4, column=0, padx=10, pady=5, sticky="W")
         self.brightness_entry = ttk.Entry(self.root, width=10)
-        self.brightness_values_label = ttk.Label(self.root, text="(0.5-1.5)")
 
-        self.contrast_check = ttk.Checkbutton(self.root, text="Contrast", variable=self.contrast_var, command=self.update_entries)
-        self.contrast_check.grid(row=4, column=1, padx=10, pady=5, sticky="W")
-        self.contrast_entry = ttk.Entry(self.root, width=10)
-        self.contrast_values_label = ttk.Label(self.root, text="(0.5-1.5)")
-
-        self.flip_check = ttk.Checkbutton(self.root, text="Flip", variable=self.flip_var, command=self.update_entries)
+        self.flip_check = ttk.Checkbutton(self.root, text="Flip (0 or 1)", variable=self.flip_var, command=self.update_entries)
         self.flip_check.grid(row=5, column=0, padx=10, pady=5, sticky="W")
         self.flip_entry = ttk.Entry(self.root, width=10)
-        self.flip_values_label = ttk.Label(self.root, text="(0 or 1)")
 
-        self.rotate_check = ttk.Checkbutton(self.root, text="Rotate", variable=self.rotate_var, command=self.update_entries)
-        self.rotate_check.grid(row=5, column=1, padx=10, pady=5, sticky="W")
-        self.rotate_entry = ttk.Entry(self.root, width=10)
-        self.rotate_values_label = ttk.Label(self.root, text="(-30 to 30)")
-
-        self.distortion_check = ttk.Checkbutton(self.root, text="Distortion", variable=self.distortion_var, command=self.update_entries)
+        self.distortion_check = ttk.Checkbutton(self.root, text="Distortion (Minimal)", variable=self.distortion_var, command=self.update_entries)
         self.distortion_check.grid(row=6, column=0, padx=10, pady=5, sticky="W")
         self.distortion_entry = ttk.Entry(self.root, width=10)
-        self.distortion_values_label = ttk.Label(self.root, text="(5-15)")
+
+        self.contrast_check = ttk.Checkbutton(self.root, text="Contrast (0.8-1.1)", variable=self.contrast_var, command=self.update_entries)
+        self.contrast_check.grid(row=4, column=2, padx=10, pady=5, sticky="W")
+        self.contrast_entry = ttk.Entry(self.root, width=10)
+
+        self.rotate_check = ttk.Checkbutton(self.root, text="Rotate (-30 to 30)", variable=self.rotate_var, command=self.update_entries)
+        self.rotate_check.grid(row=5, column=2, padx=10, pady=5, sticky="W")
+        self.rotate_entry = ttk.Entry(self.root, width=10)
 
         # Start button
         self.start_button = ttk.Button(self.root, text="Start Augmentation", command=self.start_augmentation)
@@ -114,27 +109,17 @@ class AugmentationApp:
         mode = self.mode_var.get()
 
         if mode == 'manual':
-            self.brightness_entry.grid(row=4, column=2, padx=10, pady=5, sticky="W")
-            self.brightness_values_label.grid(row=4, column=3, padx=10, pady=5, sticky="W")
-            self.contrast_entry.grid(row=4, column=2, padx=10, pady=5, sticky="W")
-            self.contrast_values_label.grid(row=4, column=3, padx=10, pady=5, sticky="W")
-            self.flip_entry.grid(row=5, column=2, padx=10, pady=5, sticky="W")
-            self.flip_values_label.grid(row=5, column=3, padx=10, pady=5, sticky="W")
-            self.rotate_entry.grid(row=5, column=2, padx=10, pady=5, sticky="W")
-            self.rotate_values_label.grid(row=5, column=3, padx=10, pady=5, sticky="W")
-            self.distortion_entry.grid(row=6, column=2, padx=10, pady=5, sticky="W")
-            self.distortion_values_label.grid(row=6, column=3, padx=10, pady=5, sticky="W")
+            self.brightness_entry.grid(row=4, column=1, padx=10, pady=5, sticky="W")
+            self.flip_entry.grid(row=5, column=1, padx=10, pady=5, sticky="W")
+            self.distortion_entry.grid(row=6, column=1, padx=10, pady=5, sticky="W")
+            self.contrast_entry.grid(row=4, column=3, padx=10, pady=5, sticky="W")
+            self.rotate_entry.grid(row=5, column=3, padx=10, pady=5, sticky="W")
         else:
             self.brightness_entry.grid_forget()
-            self.brightness_values_label.grid_forget()
-            self.contrast_entry.grid_forget()
-            self.contrast_values_label.grid_forget()
             self.flip_entry.grid_forget()
-            self.flip_values_label.grid_forget()
-            self.rotate_entry.grid_forget()
-            self.rotate_values_label.grid_forget()
             self.distortion_entry.grid_forget()
-            self.distortion_values_label.grid_forget()
+            self.contrast_entry.grid_forget()
+            self.rotate_entry.grid_forget()
 
     def start_augmentation(self):
         input_directory = self.input_entry.get()
@@ -150,30 +135,30 @@ class AugmentationApp:
                 augmentations.append(f"brightness:{threshold}")
             else:
                 augmentations.append("brightness")
-        if self.contrast_var.get():
-            if mode == 'manual':
-                threshold = self.contrast_entry.get()
-                augmentations.append(f"contrast:{threshold}")
-            else:
-                augmentations.append("contrast")
         if self.flip_var.get():
             if mode == 'manual':
                 threshold = self.flip_entry.get()
                 augmentations.append(f"flip:{threshold}")
             else:
                 augmentations.append("flip")
-        if self.rotate_var.get():
-            if mode == 'manual':
-                threshold = self.rotate_entry.get()
-                augmentations.append(f"rotate:{threshold}")
-            else:
-                augmentations.append("rotate")
         if self.distortion_var.get():
             if mode == 'manual':
                 threshold = self.distortion_entry.get()
                 augmentations.append(f"distortion:{threshold}")
             else:
                 augmentations.append("distortion")
+        if self.contrast_var.get():
+            if mode == 'manual':
+                threshold = self.contrast_entry.get()
+                augmentations.append(f"contrast:{threshold}")
+            else:
+                augmentations.append("contrast")
+        if self.rotate_var.get():
+            if mode == 'manual':
+                threshold = self.rotate_entry.get()
+                augmentations.append(f"rotate:{threshold}")
+            else:
+                augmentations.append("rotate")
 
         if not augmentations:
             messagebox.showerror("Error", "Please select at least one augmentation.")
